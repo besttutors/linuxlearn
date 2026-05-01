@@ -1,0 +1,778 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f172a;--bg2:#1e293b;--bg3:#0f172a;--text:#e2e8f0;--text2:#94a3b8;
+  --accent:#22c55e;--accent2:#3b82f6;--border:#334155;--card:#1e293b;
+  --sidebar:#0d1b2a;--term:#000;--term-text:#22c55e;
+}
+.light{
+  --bg:#f8fafc;--bg2:#ffffff;--bg3:#f1f5f9;--text:#1e293b;--text2:#64748b;
+  --accent:#16a34a;--accent2:#2563eb;--border:#e2e8f0;--card:#ffffff;
+  --sidebar:#f1f5f9;--term:#111827;--term-text:#22c55e;
+}
+body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+.app{display:flex;min-height:100vh}
+.sidebar{width:220px;background:var(--sidebar);border-right:1px solid var(--border);padding:1rem;flex-shrink:0;transition:transform .3s}
+.sidebar h2{font-size:12px;font-weight:500;color:var(--text2);letter-spacing:.05em;margin:1rem 0 .5rem;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:14px;color:var(--text2);transition:all .2s;margin:2px 0}
+.nav-item:hover,.nav-item.active{background:var(--accent);color:#fff}
+.nav-item span{font-size:16px}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg2);flex-wrap:wrap}
+.topbar h1{font-size:16px;font-weight:500;flex:1;min-width:120px}
+.search-wrap{position:relative;flex:1;max-width:280px;min-width:140px}
+.search-wrap input{width:100%;padding:7px 10px 7px 32px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px}
+.search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text2);font-size:14px}
+.btn{padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer;font-size:13px;transition:all .2s;white-space:nowrap}
+.btn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-accent{background:var(--accent);color:#fff;border-color:var(--accent)}
+.content{flex:1;overflow-y:auto;padding:16px}
+.page{display:none}
+.page.active{display:block}
+.level-tabs{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
+.tab{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--bg);color:var(--text2);cursor:pointer;font-size:13px;transition:all .2s}
+.tab.active,.tab:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.cmd-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.cmd-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;transition:transform .2s;position:relative}
+.cmd-card:hover{transform:translateY(-1px)}
+.cmd-card h3{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.cmd-card code{display:block;background:var(--term);color:var(--term-text);padding:8px 10px;border-radius:6px;font-family:monospace;font-size:13px;margin:4px 0}
+.cmd-card p{font-size:13px;color:var(--text2);margin-top:6px;line-height:1.5}
+.fav-btn{position:absolute;top:12px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;color:var(--text2)}
+.fav-btn.active{color:#f59e0b}
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin:1rem 0 .5rem}
+.section-hdr h2{font-size:15px;font-weight:500;display:flex;align-items:center;gap:8px}
+.badge{padding:3px 8px;border-radius:12px;font-size:11px;font-weight:500}
+.badge-green{background:#dcfce7;color:#166534}
+.light .badge-green{background:#dcfce7;color:#166534}
+.progress-wrap{background:var(--bg3);border-radius:8px;padding:14px;border:1px solid var(--border);margin-bottom:1rem}
+.progress-label{display:flex;justify-content:space-between;font-size:13px;color:var(--text2);margin-bottom:6px}
+.progress-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px;transition:width .5s}
+.term-wrap{background:#000;border-radius:10px;padding:16px;font-family:monospace;min-height:200px;position:relative;border:1px solid #22c55e33}
+.term-output{color:#22c55e;font-size:13px;line-height:1.6;white-space:pre-wrap;min-height:140px;max-height:260px;overflow-y:auto}
+.term-input-row{display:flex;align-items:center;gap:8px;margin-top:10px;border-top:1px solid #1a2a1a;padding-top:10px}
+.term-prompt{color:#22c55e;font-size:13px;white-space:nowrap}
+.term-input{flex:1;background:transparent;border:none;color:#22c55e;font-family:monospace;font-size:13px;outline:none}
+.quiz-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;max-width:560px}
+.quiz-q{font-size:15px;font-weight:500;margin-bottom:14px;line-height:1.5}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.quiz-opt{padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer;font-size:13px;text-align:left;transition:all .2s}
+.quiz-opt:hover{border-color:var(--accent2)}
+.quiz-opt.correct{background:#dcfce7;border-color:#22c55e;color:#166534}
+.quiz-opt.wrong{background:#fee2e2;border-color:#ef4444;color:#991b1b}
+.score-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:1rem}
+.score-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 18px;text-align:center;flex:1;min-width:100px}
+.score-num{font-size:24px;font-weight:500;color:var(--accent)}
+.score-lbl{font-size:12px;color:var(--text2);margin-top:2px}
+.notes-area{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:12px;font-family:monospace;font-size:13px;line-height:1.6;resize:vertical;min-height:180px}
+.notes-btns{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.lang-row{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
+.lang-btn{padding:5px 12px;border-radius:16px;border:1px solid var(--border);background:var(--bg);color:var(--text2);cursor:pointer;font-size:12px}
+.lang-btn.active{background:var(--accent2);color:#fff;border-color:var(--accent2)}
+.warn-box{background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:12px 14px;margin:6px 0;font-size:13px;color:#991b1b}
+.light .warn-box{background:#fef2f2}
+.dark .warn-box{background:#3b0f0f;border-color:#7f1d1d;color:#fca5a5}
+.mistake-box{background:#fffbeb;border:1px solid #fbbf24;border-radius:8px;padding:12px 14px;margin:6px 0;font-size:13px;color:#92400e}
+.task-item{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;margin:6px 0;display:flex;align-items:flex-start;gap:10px;font-size:13px}
+.task-cb{accent-color:var(--accent);width:16px;height:16px;flex-shrink:0;margin-top:2px}
+.task-text{line-height:1.5}
+.hidden{display:none}
+.fade{animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.hamburger{display:none;background:none;border:none;color:var(--text);cursor:pointer;font-size:20px}
+.overlay{display:none;position:fixed;inset:0;background:#0009;z-index:10}
+@media(max-width:640px){
+  .sidebar{position:fixed;left:0;top:0;height:100%;z-index:20;transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .hamburger{display:block}
+  .overlay.show{display:block}
+  .cmd-grid{grid-template-columns:1fr}
+  .quiz-opts{grid-template-columns:1fr}
+}
+</style>
+
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+<div class="app" id="app">
+<div class="sidebar" id="sidebar">
+  <div style="font-size:15px;font-weight:500;color:var(--accent);margin-bottom:1rem;display:flex;align-items:center;gap:8px">
+    <span style="font-size:20px">🐧</span> LinuxMaster
+  </div>
+  <h2>Learn</h2>
+  <div class="nav-item active" onclick="showPage('commands')"><span>📂</span> Commands</div>
+  <div class="nav-item" onclick="showPage('terminal')"><span>💻</span> Terminal Sim</div>
+  <div class="nav-item" onclick="showPage('quiz')"><span>🧠</span> Quiz</div>
+  <div class="nav-item" onclick="showPage('tasks')"><span>🎯</span> Exercises</div>
+  <h2>Tools</h2>
+  <div class="nav-item" onclick="showPage('favorites')"><span>⭐</span> Favorites</div>
+  <div class="nav-item" onclick="showPage('notes')"><span>📝</span> Notes</div>
+  <div class="nav-item" onclick="showPage('mistakes')"><span>⚠️</span> Common Mistakes</div>
+  <div style="margin-top:auto;padding-top:2rem">
+    <div class="nav-item" onclick="showPage('about')"><span>ℹ️</span> About</div>
+  </div>
+</div>
+
+<div class="main">
+<div class="topbar">
+  <button class="hamburger" onclick="toggleSidebar()">☰</button>
+  <h1 id="page-title">Commands Reference</h1>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search" placeholder="Search commands..." oninput="doSearch(this.value)">
+  </div>
+  <div class="lang-row" style="margin:0">
+    <button class="lang-btn active" onclick="setLang('en',this)">EN</button>
+    <button class="lang-btn" onclick="setLang('hi',this)">हि</button>
+  </div>
+  <button class="btn" onclick="toggleMode()">🌙 / ☀️</button>
+</div>
+
+<div class="content">
+
+<!-- COMMANDS PAGE -->
+<div class="page active" id="page-commands">
+  <div class="progress-wrap">
+    <div class="progress-label"><span id="prog-label">Progress: 0%</span><span id="prog-xp">0 XP</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div class="level-tabs">
+    <button class="tab active" onclick="showLevel('all',this)">All</button>
+    <button class="tab" onclick="showLevel('beginner',this)">Beginner</button>
+    <button class="tab" onclick="showLevel('intermediate',this)">Intermediate</button>
+    <button class="tab" onclick="showLevel('advanced',this)">Advanced</button>
+  </div>
+  <div class="level-tabs" style="margin-top:-4px">
+    <button class="tab" onclick="filterCat('all',this)">All Categories</button>
+    <button class="tab" onclick="filterCat('file',this)">File</button>
+    <button class="tab" onclick="filterCat('process',this)">Process</button>
+    <button class="tab" onclick="filterCat('network',this)">Network</button>
+    <button class="tab" onclick="filterCat('permission',this)">Permission</button>
+    <button class="tab" onclick="filterCat('disk',this)">Disk</button>
+    <button class="tab" onclick="filterCat('system',this)">System</button>
+  </div>
+  <div class="cmd-grid" id="cmd-grid"></div>
+</div>
+
+<!-- TERMINAL PAGE -->
+<div class="page" id="page-terminal">
+  <div class="section-hdr"><h2><span>💻</span> Terminal Simulator</h2></div>
+  <p style="font-size:13px;color:var(--text2);margin-bottom:1rem" id="term-help">Type Linux commands and see simulated output. Try: ls, pwd, whoami, help</p>
+  <div class="term-wrap">
+    <div class="term-output" id="term-output">Welcome to LinuxMaster Terminal Simulator
+Type 'help' to see available commands.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+</div>
+    <div class="term-input-row">
+      <span class="term-prompt" id="term-prompt">user@linux:~$</span>
+      <input class="term-input" id="term-input" placeholder="type command here..." onkeydown="handleTerm(event)">
+    </div>
+  </div>
+  <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn" onclick="termQuick('ls')">ls</button>
+    <button class="btn" onclick="termQuick('pwd')">pwd</button>
+    <button class="btn" onclick="termQuick('whoami')">whoami</button>
+    <button class="btn" onclick="termQuick('date')">date</button>
+    <button class="btn" onclick="termQuick('cal')">cal</button>
+    <button class="btn" onclick="termQuick('help')">help</button>
+    <button class="btn btn-accent" onclick="clearTerm()">Clear</button>
+  </div>
+</div>
+
+<!-- QUIZ PAGE -->
+<div class="page" id="page-quiz">
+  <div class="score-row">
+    <div class="score-card"><div class="score-num" id="q-correct">0</div><div class="score-lbl">Correct</div></div>
+    <div class="score-card"><div class="score-num" id="q-wrong" style="color:#ef4444">0</div><div class="score-lbl">Wrong</div></div>
+    <div class="score-card"><div class="score-num" id="q-pct">0%</div><div class="score-lbl">Score</div></div>
+    <div class="score-card"><div class="score-num" id="q-streak">0</div><div class="score-lbl">Streak</div></div>
+  </div>
+  <div class="quiz-card fade" id="quiz-card">
+    <div class="quiz-q" id="quiz-q">Loading question...</div>
+    <div class="quiz-opts" id="quiz-opts"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span id="quiz-feedback" style="font-size:13px;font-weight:500"></span>
+      <button class="btn btn-accent" onclick="nextQ()" id="next-btn" style="display:none">Next →</button>
+    </div>
+  </div>
+  <button class="btn" onclick="resetQuiz()" style="margin-top:10px">Reset Quiz</button>
+</div>
+
+<!-- TASKS PAGE -->
+<div class="page" id="page-tasks">
+  <div class="section-hdr"><h2><span>🎯</span> Practice Exercises</h2></div>
+  <div id="tasks-list"></div>
+</div>
+
+<!-- FAVORITES PAGE -->
+<div class="page" id="page-favorites">
+  <div class="section-hdr"><h2><span>⭐</span> Bookmarked Commands</h2></div>
+  <div class="cmd-grid" id="fav-grid"></div>
+  <p id="fav-empty" style="color:var(--text2);font-size:13px">No favorites yet. Star commands from the Commands page.</p>
+</div>
+
+<!-- NOTES PAGE -->
+<div class="page" id="page-notes">
+  <div class="section-hdr"><h2><span>📝</span> Notes Generator</h2></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem">
+    <button class="btn" onclick="genNotes('beginner')">Beginner Notes</button>
+    <button class="btn" onclick="genNotes('intermediate')">Intermediate Notes</button>
+    <button class="btn" onclick="genNotes('advanced')">Advanced Notes</button>
+    <button class="btn" onclick="genNotes('all')">Full Reference</button>
+  </div>
+  <textarea class="notes-area" id="notes-area" placeholder="Click a button above to generate notes, or type your own..."></textarea>
+  <div class="notes-btns">
+    <button class="btn btn-accent" onclick="copyNotes()">📋 Copy</button>
+    <button class="btn" onclick="downloadNotes()">⬇️ Download .txt</button>
+    <button class="btn" onclick="window.print()">🖨️ Print / PDF</button>
+    <button class="btn" onclick="clearNotes()">🗑️ Clear</button>
+  </div>
+</div>
+
+<!-- MISTAKES PAGE -->
+<div class="page" id="page-mistakes">
+  <div class="section-hdr"><h2><span>⚠️</span> Common Beginner Mistakes</h2></div>
+  <div id="mistakes-list"></div>
+</div>
+
+<!-- ABOUT PAGE -->
+<div class="page" id="page-about">
+  <div class="section-hdr"><h2><span>ℹ️</span> About LinuxMaster</h2></div>
+  <div class="cmd-card" style="max-width:500px">
+    <p style="font-size:14px;line-height:1.7;color:var(--text2)">LinuxMaster is an interactive Linux learning app covering beginner to advanced topics. Practice with the terminal simulator, test yourself with quizzes, bookmark your favorite commands, and export notes.</p>
+    <br>
+    <p style="font-size:13px;color:var(--text2)">Version 2.0 &nbsp;·&nbsp; Pure HTML/CSS/JS &nbsp;·&nbsp; No dependencies</p>
+  </div>
+</div>
+
+</div>
+</div>
+</div>
+
+<script>
+const T = {
+  en: {
+    'current dir': 'Shows current directory path',
+    'list files': 'Lists files and folders',
+    'change dir': 'Changes directory',
+    'make dir': 'Creates a new directory',
+    'remove file': 'Removes a file',
+    'copy': 'Copies files or directories',
+    'move/rename': 'Moves or renames a file',
+    'create file': 'Creates an empty file',
+    'print text': 'Prints text to terminal',
+    'show file': 'Displays file contents',
+    'edit nano': 'Opens nano text editor',
+    'edit vim': 'Opens vim text editor',
+    'find files': 'Searches for files',
+    'search text': 'Searches text in files',
+    'permissions': 'Changes file permissions',
+    'change owner': 'Changes file owner',
+    'disk usage': 'Shows disk space usage',
+    'dir size': 'Shows directory size',
+    'processes': 'Shows running processes',
+    'all procs': 'Shows all processes with details',
+    'kill proc': 'Terminates a process',
+    'who am i': 'Shows current user',
+    'hostname': 'Shows machine hostname',
+    'uptime': 'Shows system uptime',
+    'memory': 'Shows memory usage',
+    'network if': 'Shows network interfaces',
+    'ping': 'Tests network connectivity',
+    'download': 'Downloads files from internet',
+    'fetch url': 'Transfers data from URLs',
+    'connections': 'Shows network connections',
+    'compress zip': 'Creates a zip archive',
+    'unzip': 'Extracts zip archive',
+    'tar create': 'Creates tar archive',
+    'tar extract': 'Extracts tar archive',
+    'history': 'Shows command history',
+    'alias': 'Creates command shortcuts',
+    'env vars': 'Shows environment variables',
+    'export var': 'Sets environment variable',
+    'pipe': 'Sends output of one cmd to another',
+    'redirect out': 'Redirects output to file',
+    'redirect app': 'Appends output to file',
+    'redirect in': 'Reads input from file',
+    'background': 'Runs command in background',
+    'ssh login': 'Securely logs into remote host',
+    'scp copy': 'Securely copies files to remote',
+    'cron jobs': 'Schedules repeated tasks',
+    'system ctl': 'Manages system services',
+    'package apt': 'Installs software packages',
+    'update pkg': 'Updates package lists',
+    'disk partitions': 'Shows disk partition table',
+    'mount disk': 'Mounts a filesystem',
+    'user add': 'Adds a new user',
+    'change pwd': 'Changes user password',
+    'super user': 'Runs command as root',
+    'switch user': 'Switches to another user',
+  },
+  hi: {
+    'current dir': 'वर्तमान डायरेक्टरी का पाथ दिखाता है',
+    'list files': 'फाइलें और फोल्डर सूचीबद्ध करता है',
+    'change dir': 'डायरेक्टरी बदलता है',
+    'make dir': 'नई डायरेक्टरी बनाता है',
+    'remove file': 'फाइल हटाता है',
+    'copy': 'फाइलें कॉपी करता है',
+    'move/rename': 'फाइल को मूव या रीनेम करता है',
+    'create file': 'खाली फाइल बनाता है',
+    'print text': 'टर्मिनल पर टेक्स्ट प्रिंट करता है',
+    'show file': 'फाइल की सामग्री दिखाता है',
+    'edit nano': 'नैनो टेक्स्ट एडिटर खोलता है',
+    'edit vim': 'vim एडिटर खोलता है',
+    'find files': 'फाइलें खोजता है',
+    'search text': 'फाइलों में टेक्स्ट खोजता है',
+    'permissions': 'फाइल अनुमतियाँ बदलता है',
+    'change owner': 'फाइल मालिक बदलता है',
+    'disk usage': 'डिस्क उपयोग दिखाता है',
+    'dir size': 'डायरेक्टरी का आकार दिखाता है',
+    'processes': 'चल रही प्रक्रियाएं दिखाता है',
+    'all procs': 'सभी प्रक्रियाओं की जानकारी',
+    'kill proc': 'प्रक्रिया समाप्त करता है',
+    'who am i': 'वर्तमान यूजर दिखाता है',
+    'hostname': 'मशीन का नाम दिखाता है',
+    'uptime': 'सिस्टम अपटाइम दिखाता है',
+    'memory': 'मेमोरी उपयोग दिखाता है',
+    'network if': 'नेटवर्क इंटरफेस दिखाता है',
+    'ping': 'नेटवर्क कनेक्टिविटी जांचता है',
+    'download': 'इंटरनेट से फाइलें डाउनलोड करता है',
+    'fetch url': 'URL से डेटा लाता है',
+    'connections': 'नेटवर्क कनेक्शन दिखाता है',
+    'compress zip': 'zip आर्काइव बनाता है',
+    'unzip': 'zip निकालता है',
+    'tar create': 'tar आर्काइव बनाता है',
+    'tar extract': 'tar निकालता है',
+    'history': 'कमांड इतिहास दिखाता है',
+    'alias': 'कमांड शॉर्टकट बनाता है',
+    'env vars': 'पर्यावरण चर दिखाता है',
+    'export var': 'पर्यावरण चर सेट करता है',
+    'pipe': 'एक कमांड का आउटपुट दूसरे को भेजता है',
+    'redirect out': 'आउटपुट फाइल में भेजता है',
+    'redirect app': 'आउटपुट फाइल में जोड़ता है',
+    'redirect in': 'फाइल से इनपुट पढ़ता है',
+    'background': 'पृष्ठभूमि में कमांड चलाता है',
+    'ssh login': 'रिमोट होस्ट पर सुरक्षित लॉगिन',
+    'scp copy': 'रिमोट पर फाइलें कॉपी करता है',
+    'cron jobs': 'दोहराए जाने वाले कार्य शेड्यूल करता है',
+    'system ctl': 'सिस्टम सेवाएं प्रबंधित करता है',
+    'package apt': 'सॉफ्टवेयर पैकेज इंस्टॉल करता है',
+    'update pkg': 'पैकेज सूची अपडेट करता है',
+    'disk partitions': 'डिस्क पार्टीशन तालिका दिखाता है',
+    'mount disk': 'फाइलसिस्टम माउंट करता है',
+    'user add': 'नया यूजर जोड़ता है',
+    'change pwd': 'यूजर पासवर्ड बदलता है',
+    'super user': 'रूट के रूप में कमांड चलाता है',
+    'switch user': 'दूसरे यूजर में स्विच करता है',
+  }
+};
+
+const CMDS = [
+  {cmd:'pwd',cat:'file',level:'beginner',key:'current dir',ex:'pwd → /home/user'},
+  {cmd:'ls',cat:'file',level:'beginner',key:'list files',ex:'ls -la → shows hidden files too'},
+  {cmd:'cd folder',cat:'file',level:'beginner',key:'change dir',ex:'cd Documents → enters Documents'},
+  {cmd:'mkdir newfolder',cat:'file',level:'beginner',key:'make dir',ex:'mkdir myproject'},
+  {cmd:'rm file.txt',cat:'file',level:'beginner',key:'remove file',ex:'rm -rf folder (⚠️ danger!)'},
+  {cmd:'cp src dst',cat:'file',level:'beginner',key:'copy',ex:'cp file.txt backup.txt'},
+  {cmd:'mv old new',cat:'file',level:'beginner',key:'move/rename',ex:'mv old.txt new.txt'},
+  {cmd:'touch file.txt',cat:'file',level:'beginner',key:'create file',ex:'touch notes.txt'},
+  {cmd:'echo "hello"',cat:'file',level:'beginner',key:'print text',ex:'echo $HOME → /home/user'},
+  {cmd:'cat file.txt',cat:'file',level:'beginner',key:'show file',ex:'cat /etc/hosts'},
+  {cmd:'nano file.txt',cat:'file',level:'beginner',key:'edit nano',ex:'Ctrl+X to exit'},
+  {cmd:'vim file.txt',cat:'file',level:'intermediate',key:'edit vim',ex:':wq to save and quit'},
+  {cmd:'find / -name f',cat:'file',level:'intermediate',key:'find files',ex:'find . -name "*.txt"'},
+  {cmd:'grep "text" f',cat:'file',level:'intermediate',key:'search text',ex:'grep -r "error" /var/log'},
+  {cmd:'chmod 755 file',cat:'permission',level:'intermediate',key:'permissions',ex:'chmod +x script.sh'},
+  {cmd:'chown user file',cat:'permission',level:'intermediate',key:'change owner',ex:'chown root:root file'},
+  {cmd:'df -h',cat:'disk',level:'beginner',key:'disk usage',ex:'df -h → shows all mounts'},
+  {cmd:'du -sh folder',cat:'disk',level:'intermediate',key:'dir size',ex:'du -sh /var/log'},
+  {cmd:'top',cat:'process',level:'beginner',key:'processes',ex:'press q to quit top'},
+  {cmd:'ps aux',cat:'process',level:'intermediate',key:'all procs',ex:'ps aux | grep nginx'},
+  {cmd:'kill 1234',cat:'process',level:'intermediate',key:'kill proc',ex:'kill -9 PID (force)'},
+  {cmd:'whoami',cat:'system',level:'beginner',key:'who am i',ex:'whoami → root or username'},
+  {cmd:'hostname',cat:'system',level:'beginner',key:'hostname',ex:'hostname -I → shows IP'},
+  {cmd:'uptime',cat:'system',level:'beginner',key:'uptime',ex:'shows load average too'},
+  {cmd:'free -h',cat:'system',level:'intermediate',key:'memory',ex:'free -m → in megabytes'},
+  {cmd:'ifconfig',cat:'network',level:'intermediate',key:'network if',ex:'ip addr (modern alternative)'},
+  {cmd:'ping google.com',cat:'network',level:'beginner',key:'ping',ex:'ping -c 4 google.com'},
+  {cmd:'wget url',cat:'network',level:'intermediate',key:'download',ex:'wget https://example.com/f.zip'},
+  {cmd:'curl url',cat:'network',level:'intermediate',key:'fetch url',ex:'curl -O url → save file'},
+  {cmd:'netstat -tulnp',cat:'network',level:'advanced',key:'connections',ex:'ss -tulnp (modern)'},
+  {cmd:'zip f.zip file',cat:'file',level:'intermediate',key:'compress zip',ex:'zip -r arch.zip folder/'},
+  {cmd:'unzip f.zip',cat:'file',level:'intermediate',key:'unzip',ex:'unzip -l f.zip (list only)'},
+  {cmd:'tar -cvf f.tar d',cat:'file',level:'intermediate',key:'tar create',ex:'tar -czvf f.tar.gz folder'},
+  {cmd:'tar -xvf f.tar',cat:'file',level:'intermediate',key:'tar extract',ex:'tar -xzvf f.tar.gz'},
+  {cmd:'history',cat:'system',level:'beginner',key:'history',ex:'history | grep ssh'},
+  {cmd:'alias ll="ls -la"',cat:'system',level:'intermediate',key:'alias',ex:'alias in ~/.bashrc'},
+  {cmd:'env',cat:'system',level:'intermediate',key:'env vars',ex:'env | grep PATH'},
+  {cmd:'export VAR=val',cat:'system',level:'intermediate',key:'export var',ex:'export PATH=$PATH:/opt'},
+  {cmd:'cmd1 | cmd2',cat:'file',level:'intermediate',key:'pipe',ex:'ls | grep .txt'},
+  {cmd:'cmd > file.txt',cat:'file',level:'intermediate',key:'redirect out',ex:'echo hello > out.txt'},
+  {cmd:'cmd >> file.txt',cat:'file',level:'intermediate',key:'redirect app',ex:'echo hi >> log.txt'},
+  {cmd:'cmd < file.txt',cat:'file',level:'advanced',key:'redirect in',ex:'sort < names.txt'},
+  {cmd:'cmd &',cat:'process',level:'intermediate',key:'background',ex:'sleep 10 &'},
+  {cmd:'ssh user@host',cat:'network',level:'advanced',key:'ssh login',ex:'ssh -p 22 user@192.168.1.1'},
+  {cmd:'scp file u@h:/path',cat:'network',level:'advanced',key:'scp copy',ex:'scp -r folder user@host:~'},
+  {cmd:'crontab -e',cat:'system',level:'advanced',key:'cron jobs',ex:'*/5 * * * * /script.sh'},
+  {cmd:'systemctl start s',cat:'system',level:'advanced',key:'system ctl',ex:'systemctl status nginx'},
+  {cmd:'apt install pkg',cat:'system',level:'intermediate',key:'package apt',ex:'apt install vim git'},
+  {cmd:'apt update',cat:'system',level:'beginner',key:'update pkg',ex:'apt update && apt upgrade'},
+  {cmd:'fdisk -l',cat:'disk',level:'advanced',key:'disk partitions',ex:'lsblk (modern alternative)'},
+  {cmd:'mount /dev/sda1 /mnt',cat:'disk',level:'advanced',key:'mount disk',ex:'umount /mnt to unmount'},
+  {cmd:'useradd newuser',cat:'system',level:'advanced',key:'user add',ex:'useradd -m -s /bin/bash user'},
+  {cmd:'passwd username',cat:'system',level:'intermediate',key:'change pwd',ex:'passwd → change own pwd'},
+  {cmd:'sudo command',cat:'system',level:'beginner',key:'super user',ex:'sudo apt update'},
+  {cmd:'su - username',cat:'system',level:'intermediate',key:'switch user',ex:'su - root'},
+];
+
+const QUIZ_DATA = [
+  {q:'Which command shows the current directory?',opts:['pwd','ls','cd','cat'],ans:0},
+  {q:'How do you list all files including hidden ones?',opts:['ls -a','ls','ls -l','ls -h'],ans:0},
+  {q:'Which command creates a new directory?',opts:['touch','mkdir','cd','cp'],ans:1},
+  {q:'How do you remove a file permanently?',opts:['del file','rm file','mv file','cd file'],ans:1},
+  {q:'What does chmod 755 do?',opts:['Changes owner','Changes name','Sets permissions','Deletes file'],ans:2},
+  {q:'Which command shows running processes?',opts:['kill','ps aux','sudo','env'],ans:1},
+  {q:'How do you search text in a file?',opts:['find','locate','grep','search'],ans:2},
+  {q:'Which symbol pipes output?',opts:['&','|','>','<'],ans:1},
+  {q:'What does >> do?',opts:['Creates file','Overwrites file','Appends to file','Deletes file'],ans:2},
+  {q:'Which command shows disk space?',opts:['du','ls','df -h','top'],ans:2},
+  {q:'How do you become superuser temporarily?',opts:['su','sudo','root','chmod'],ans:1},
+  {q:'Which command downloads a file from the internet?',opts:['ftp','get','wget','import'],ans:2},
+  {q:'How do you kill a process by PID?',opts:['kill PID','stop PID','end PID','rm PID'],ans:0},
+  {q:'What does tar -xvf do?',opts:['Creates archive','Extracts archive','Lists archive','Deletes archive'],ans:1},
+  {q:'Which command shows memory usage?',opts:['mem','free -h','ram','top -m'],ans:1},
+  {q:'How do you SSH into a remote server?',opts:['ssh user@host','login user@host','connect host','remote host'],ans:0},
+  {q:'What does the & symbol do when appended to a command?',opts:['Pipes output','Runs in background','Appends to file','Chains commands'],ans:1},
+  {q:'Which command schedules repeated tasks?',opts:['cron','timer','schedule','taskd'],ans:0},
+  {q:'How do you change file ownership?',opts:['chmod','chown','chgrp','chuser'],ans:1},
+  {q:'Which command shows environment variables?',opts:['env','var','export','path'],ans:0},
+];
+
+const TASKS = [
+  {level:'beginner',title:'File System Exploration',steps:['Open terminal','Type pwd to see where you are','Type ls to see files','Create a folder: mkdir myproject','Enter it: cd myproject','Create a file: touch index.txt','Go back: cd ..','Delete the folder: rm -rf myproject']},
+  {level:'beginner',title:'Text File Practice',steps:['Create a file: touch notes.txt','Write to it: echo "Hello Linux" > notes.txt','View it: cat notes.txt','Add more: echo "Learning is fun" >> notes.txt','View again: cat notes.txt']},
+  {level:'intermediate',title:'Permissions Workshop',steps:['Create script: touch myscript.sh','Check perms: ls -la myscript.sh','Make executable: chmod +x myscript.sh','Check again: ls -la myscript.sh','View numeric perms: stat myscript.sh']},
+  {level:'intermediate',title:'Process Management',steps:['Start background process: sleep 60 &','Note the PID shown','List processes: ps aux | grep sleep','Kill it: kill <PID>','Verify it is gone: ps aux | grep sleep']},
+  {level:'advanced',title:'Log Analysis',steps:['Check system logs: cat /var/log/syslog | tail -20','Search for errors: grep -i error /var/log/syslog','Count errors: grep -c error /var/log/syslog','Save results: grep error /var/log/syslog > errors.txt','View saved: wc -l errors.txt']},
+  {level:'advanced',title:'Archive & Compress',steps:['Create test files: mkdir testdir && touch testdir/a.txt testdir/b.txt','Create tar: tar -czvf backup.tar.gz testdir/','List contents: tar -tzvf backup.tar.gz','Extract somewhere: mkdir restored && tar -xzvf backup.tar.gz -C restored/','Verify: ls restored/testdir/']},
+];
+
+const MISTAKES = [
+  {title:'Using rm -rf carelessly',warn:true,desc:'rm -rf / or rm -rf /* deletes everything! Always double-check your path before using rm -rf.',fix:'Use trash-cli or always run ls on the path first.'},
+  {title:'Forgetting sudo when needed',warn:false,desc:'Many system commands need root privileges. If you get "Permission denied", you probably need sudo.',fix:'Prefix the command with sudo. Example: sudo apt update'},
+  {title:'Confusing > and >>',warn:false,desc:'> OVERWRITES the file completely. >> APPENDS to the file. Using > when you meant >> can destroy your data.',fix:'Always double-check: use >> when you want to add, not replace.'},
+  {title:'Not quoting spaces in filenames',warn:false,desc:'rm my file.txt is treated as rm my and rm file.txt — two separate commands!',fix:'Quote filenames: rm "my file.txt" or use backslash: rm my\\ file.txt'},
+  {title:'Running commands as root all the time',warn:true,desc:'Operating as root is dangerous. One typo can break your entire system.',fix:'Use regular user account. Only use sudo when truly necessary.'},
+  {title:'Ignoring file permissions before chmod 777',warn:true,desc:'chmod 777 gives everyone full access. It is a security risk on shared systems.',fix:'Use minimal permissions. 755 for executables, 644 for files is usually enough.'},
+  {title:'Piping without checking intermediate output',warn:false,desc:'cmd1 | cmd2 | cmd3 can be hard to debug if something goes wrong in the middle.',fix:'Test each command independently first, then combine with pipes.'},
+];
+
+let lang = 'en';
+let favorites = JSON.parse(localStorage.getItem('lm_favs') || '[]');
+let progress = JSON.parse(localStorage.getItem('lm_progress') || '{"xp":0,"viewed":[]}');
+let currentLevel = 'all', currentCat = 'all';
+let qIdx = 0, qCorrect = 0, qWrong = 0, qStreak = 0;
+let qOrder = [];
+let termHistory = [], termHistIdx = -1;
+let termCwd = '~';
+let termFiles = ['documents','downloads','notes.txt','readme.md','script.sh'];
+
+function getDesc(key){return (T[lang]||T.en)[key]||key}
+
+function buildCard(c){
+  const isFav = favorites.includes(c.cmd);
+  const lvlColor = c.level==='beginner'?'#22c55e':c.level==='intermediate'?'#f59e0b':'#ef4444';
+  return `<div class="cmd-card fade" data-level="${c.level}" data-cat="${c.cat}" data-search="${c.cmd} ${c.key}">
+    <button class="fav-btn ${isFav?'active':''}" onclick="toggleFav('${c.cmd}',this)" title="Bookmark">★</button>
+    <h3><span style="width:8px;height:8px;border-radius:50%;background:${lvlColor};display:inline-block"></span> ${c.cat.toUpperCase()}</h3>
+    <code>${c.cmd}</code>
+    <p><strong>${c.key}</strong> — ${getDesc(c.key)}</p>
+    <p style="margin-top:4px;font-size:12px;color:var(--accent)">eg: ${c.ex}</p>
+    <span style="font-size:11px;color:var(--text2);position:absolute;bottom:10px;right:12px">${c.level}</span>
+  </div>`;
+}
+
+function renderCmds(){
+  const grid = document.getElementById('cmd-grid');
+  let visible = CMDS.filter(c=>{
+    if(currentLevel!=='all' && c.level!==currentLevel) return false;
+    if(currentCat!=='all' && c.cat!==currentCat) return false;
+    return true;
+  });
+  grid.innerHTML = visible.map(buildCard).join('');
+  markViewed(visible.length);
+}
+
+function markViewed(n){
+  const pct = Math.min(100,Math.round((n/CMDS.length)*100));
+  document.getElementById('prog-fill').style.width = pct+'%';
+  document.getElementById('prog-label').textContent = 'Progress: '+pct+'%';
+  document.getElementById('prog-xp').textContent = progress.xp + ' XP';
+}
+
+function toggleFav(cmd, btn){
+  const i = favorites.indexOf(cmd);
+  if(i>=0){favorites.splice(i,1);btn.classList.remove('active')}
+  else{favorites.push(cmd);btn.classList.add('active');awardXP(5)}
+  localStorage.setItem('lm_favs',JSON.stringify(favorites));
+  renderFavs();
+}
+
+function renderFavs(){
+  const grid = document.getElementById('fav-grid');
+  const empty = document.getElementById('fav-empty');
+  const favCmds = CMDS.filter(c=>favorites.includes(c.cmd));
+  grid.innerHTML = favCmds.map(buildCard).join('');
+  empty.style.display = favCmds.length?'none':'block';
+}
+
+function showLevel(l,btn){
+  currentLevel=l;
+  document.querySelectorAll('.level-tabs:first-of-type .tab').forEach(t=>t.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  renderCmds();
+}
+
+function filterCat(c,btn){
+  currentCat=c;
+  document.querySelectorAll('.level-tabs:nth-of-type(2) .tab').forEach(t=>t.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  renderCmds();
+}
+
+function doSearch(val){
+  const cards = document.querySelectorAll('.cmd-card');
+  cards.forEach(card=>{
+    card.style.display = card.dataset.search.toLowerCase().includes(val.toLowerCase())?'':'none';
+  });
+}
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const titles = {commands:'Commands Reference',terminal:'Terminal Simulator',quiz:'Interactive Quiz',tasks:'Practice Exercises',favorites:'Bookmarked Commands',notes:'Notes Generator',mistakes:'Common Mistakes',about:'About'};
+  document.getElementById('page-title').textContent = titles[id]||id;
+  document.querySelectorAll('.nav-item').forEach(n=>{if(n.textContent.toLowerCase().includes(id.toLowerCase().replace('_',' ')))n.classList.add('active')});
+  if(id==='favorites')renderFavs();
+  if(id==='tasks')renderTasks();
+  if(id==='mistakes')renderMistakes();
+  if(id==='quiz')renderQuiz();
+  closeSidebar();
+}
+
+function toggleMode(){
+  document.body.classList.toggle('light');
+  localStorage.setItem('lm_mode',document.body.classList.contains('light')?'light':'dark');
+}
+
+function setLang(l,btn){
+  lang=l;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCmds();
+}
+
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+const TERM_SIM = {
+  pwd:()=>`/home/user/${termCwd==='~'?'':termCwd}`,
+  ls:()=>termFiles.join('  '),
+  whoami:()=>'user',
+  hostname:()=>'linux-learner',
+  date:()=>new Date().toString(),
+  uptime:()=>'up 3 days, 2:14, 1 user, load average: 0.12, 0.08, 0.05',
+  cal:()=>buildCal(),
+  uname:()=>'Linux linux-learner 5.15.0 #1 SMP x86_64 GNU/Linux',
+  clear:()=>{document.getElementById('term-output').textContent='';return null},
+  echo:(args)=>args||'',
+  help:()=>`Available commands: pwd, ls, cd, mkdir, touch, rm, cat, echo, whoami, hostname, uptime, uname, date, cal, clear, help`,
+  cat:(args)=>{
+    if(!args)return 'Usage: cat <filename>';
+    if(termFiles.includes(args))return `--- contents of ${args} ---\nThis is a simulated file.\nPractice makes perfect!\n`;
+    return `cat: ${args}: No such file or directory`;
+  },
+  mkdir:(args)=>{if(!args)return 'Usage: mkdir <name>';termFiles.push(args);return `Directory '${args}' created`;},
+  touch:(args)=>{if(!args)return 'Usage: touch <name>';termFiles.push(args);return `File '${args}' created`;},
+  rm:(args)=>{
+    if(!args)return 'Usage: rm <file>';
+    if(args.includes('-rf /')||args==='-rf /*')return '⚠️  DANGER: rm -rf / would destroy the system! Simulating protection...';
+    const f=args.replace('-rf ','').replace('-f ','');
+    const i=termFiles.indexOf(f);
+    if(i>=0){termFiles.splice(i,1);return `Removed '${f}'`;}
+    return `rm: ${f}: No such file or directory`;
+  },
+  cd:(args)=>{termCwd=args||'~';document.getElementById('term-prompt').textContent=`user@linux:${termCwd}$`;return '';},
+  ping:(args)=>`PING ${args||'localhost'} 56 bytes of data.\n64 bytes from ${args||'127.0.0.1'}: icmp_seq=1 ttl=64 time=0.3ms\n64 bytes from ${args||'127.0.0.1'}: icmp_seq=2 ttl=64 time=0.2ms\n--- ${args||'localhost'} ping statistics ---\n2 packets transmitted, 2 received, 0% packet loss`,
+};
+
+function buildCal(){
+  const d=new Date();const m=d.getMonth();const y=d.getFullYear();
+  const names=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  let s=`   ${names[m]} ${y}\nSu Mo Tu We Th Fr Sa\n`;
+  const first=new Date(y,m,1).getDay();
+  let day=1;const total=new Date(y,m+1,0).getDate();
+  for(let i=0;i<6;i++){let row='';
+    for(let j=0;j<7;j++){
+      if(i===0&&j<first||day>total)row+='   ';
+      else{row+=(day<10?' ':'')+day+' ';day++;}
+    }
+    s+=row.trimEnd()+'\n';if(day>total)break;
+  }
+  return s;
+}
+
+function handleTerm(e){
+  const inp=document.getElementById('term-input');
+  if(e.key==='Enter'){
+    const cmd=inp.value.trim();
+    if(!cmd)return;
+    termHistory.unshift(cmd);termHistIdx=-1;
+    runTermCmd(cmd);
+    inp.value='';
+    awardXP(2);
+  }
+  if(e.key==='ArrowUp'){e.preventDefault();termHistIdx=Math.min(termHistIdx+1,termHistory.length-1);inp.value=termHistory[termHistIdx]||'';}
+  if(e.key==='ArrowDown'){e.preventDefault();termHistIdx=Math.max(termHistIdx-1,-1);inp.value=termHistIdx>=0?termHistory[termHistIdx]:'';}
+}
+
+function runTermCmd(cmd){
+  const out=document.getElementById('term-output');
+  const prompt=document.getElementById('term-prompt').textContent;
+  out.textContent+=`\n${prompt} ${cmd}\n`;
+  const parts=cmd.trim().split(/\s+/);
+  const base=parts[0];const args=parts.slice(1).join(' ');
+  let result;
+  if(TERM_SIM[base])result=TERM_SIM[base](args);
+  else result=`bash: ${base}: command not found (this is a simulator — try 'help')`;
+  if(result!==null&&result!==undefined)out.textContent+=result+'\n';
+  out.scrollTop=out.scrollHeight;
+}
+
+function termQuick(cmd){
+  document.getElementById('term-input').value=cmd;
+  runTermCmd(cmd);
+  document.getElementById('term-input').value='';
+  awardXP(1);
+}
+
+function clearTerm(){document.getElementById('term-output').textContent='Terminal cleared.\n';}
+
+function shuffleArr(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function renderQuiz(){
+  if(qOrder.length===0){qOrder=shuffleArr([...Array(QUIZ_DATA.length).keys()]);qIdx=0;}
+  if(qIdx>=qOrder.length){qOrder=shuffleArr([...Array(QUIZ_DATA.length).keys()]);qIdx=0;}
+  const q=QUIZ_DATA[qOrder[qIdx]];
+  document.getElementById('quiz-q').textContent=`Q${qIdx+1}. ${q.q}`;
+  document.getElementById('quiz-feedback').textContent='';
+  document.getElementById('next-btn').style.display='none';
+  const opts=document.getElementById('quiz-opts');
+  opts.innerHTML=q.opts.map((o,i)=>`<button class="quiz-opt" onclick="answerQ(${i},${q.ans},this)">${o}</button>`).join('');
+  updateScore();
+}
+
+function answerQ(chosen,correct,btn){
+  document.querySelectorAll('.quiz-opt').forEach(b=>b.disabled=true);
+  const fb=document.getElementById('quiz-feedback');
+  if(chosen===correct){
+    btn.classList.add('correct');
+    fb.textContent='✓ Correct!';fb.style.color='#22c55e';
+    qCorrect++;qStreak++;awardXP(10);
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.quiz-opt')[correct].classList.add('correct');
+    fb.textContent='✗ Wrong!';fb.style.color='#ef4444';
+    qWrong++;qStreak=0;
+  }
+  document.getElementById('next-btn').style.display='block';
+  updateScore();
+}
+
+function nextQ(){qIdx++;renderQuiz();}
+
+function updateScore(){
+  const total=qCorrect+qWrong;
+  document.getElementById('q-correct').textContent=qCorrect;
+  document.getElementById('q-wrong').textContent=qWrong;
+  document.getElementById('q-pct').textContent=total?Math.round(qCorrect/total*100)+'%':'0%';
+  document.getElementById('q-streak').textContent=qStreak;
+}
+
+function resetQuiz(){qCorrect=0;qWrong=0;qStreak=0;qIdx=0;qOrder=[];renderQuiz();}
+
+function renderTasks(){
+  const el=document.getElementById('tasks-list');
+  el.innerHTML=TASKS.map((t,ti)=>`
+    <div class="section-hdr" style="margin-top:${ti?'1.5rem':'0'}">
+      <h2><span>${t.level==='beginner'?'🌱':t.level==='intermediate'?'🌿':'🌳'}</span> ${t.title}</h2>
+      <span class="badge badge-green">${t.level}</span>
+    </div>
+    ${t.steps.map((s,si)=>`<div class="task-item">
+      <input type="checkbox" class="task-cb" id="task-${ti}-${si}" onchange="taskCheck(this,${ti},${si})">
+      <label class="task-text" for="task-${ti}-${si}">${si+1}. ${s}</label>
+    </div>`).join('')}
+  `).join('');
+}
+
+function taskCheck(cb,ti,si){
+  if(cb.checked)awardXP(5);
+}
+
+function renderMistakes(){
+  const el=document.getElementById('mistakes-list');
+  el.innerHTML=MISTAKES.map(m=>`
+    <div class="${m.warn?'warn-box':'mistake-box'}" style="margin:8px 0">
+      <strong>${m.warn?'⚠️ DANGER':'⚡ MISTAKE'}: ${m.title}</strong>
+      <p style="margin-top:6px">${m.desc}</p>
+      <p style="margin-top:6px;opacity:.85"><strong>Fix:</strong> ${m.fix}</p>
+    </div>
+  `).join('');
+}
+
+function genNotes(level){
+  const filtered=level==='all'?CMDS:CMDS.filter(c=>c.level===level);
+  const cats=[...new Set(filtered.map(c=>c.cat))];
+  let text=`Linux Command Reference — ${level.toUpperCase()}\nGenerated: ${new Date().toLocaleString()}\n${'='.repeat(50)}\n\n`;
+  cats.forEach(cat=>{
+    const cmds=filtered.filter(c=>c.cat===cat);
+    text+=`[${cat.toUpperCase()}]\n`;
+    cmds.forEach(c=>{text+=`  ${c.cmd.padEnd(22)} — ${getDesc(c.key)}\n  eg: ${c.ex}\n\n`;});
+  });
+  document.getElementById('notes-area').value=text;
+}
+
+function copyNotes(){
+  const t=document.getElementById('notes-area');
+  t.select();
+  document.execCommand('copy');
+  alert('Notes copied to clipboard!');
+}
+
+function downloadNotes(){
+  const text=document.getElementById('notes-area').value;
+  const a=document.createElement('a');
+  a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(text);
+  a.download='linux-notes.txt';a.click();
+}
+
+function clearNotes(){document.getElementById('notes-area').value='';}
+
+function awardXP(n){
+  progress.xp+=n;
+  localStorage.setItem('lm_progress',JSON.stringify(progress));
+  document.getElementById('prog-xp').textContent=progress.xp+' XP';
+}
+
+// Init
+if(localStorage.getItem('lm_mode')==='light')document.body.classList.add('light');
+renderCmds();
+renderQuiz();
+</script>
