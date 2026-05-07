@@ -1,4 +1,9 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinuxMaster - Interactive Linux Learning</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -66,7 +71,7 @@ body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);min
 .score-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 18px;text-align:center;flex:1;min-width:100px}
 .score-num{font-size:24px;font-weight:500;color:var(--accent)}
 .score-lbl{font-size:12px;color:var(--text2);margin-top:2px}
-.notes-area{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:12px;font-family:monospace;font-size:13px;line-height:1.6;resize:vertical;min-height:180px}
+.notes-area{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:12px;font-family:monospace;font-size:13px;line-height:1.6;resize:vertical;min-height:200px}
 .notes-btns{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .lang-row{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
 .lang-btn{padding:5px 12px;border-radius:16px;border:1px solid var(--border);background:var(--bg);color:var(--text2);cursor:pointer;font-size:12px}
@@ -92,6 +97,8 @@ body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);min
   .quiz-opts{grid-template-columns:1fr}
 }
 </style>
+</head>
+<body>
 
 <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
 <div class="app" id="app">
@@ -239,7 +246,7 @@ Type 'help' to see available commands.
 <div class="page" id="page-about">
   <div class="section-hdr"><h2><span>ℹ️</span> About LinuxMaster</h2></div>
   <div class="cmd-card" style="max-width:500px">
-    <p style="font-size:14px;line-height:1.7;color:var(--text2)">LinuxMaster is an interactive Linux learning app covering beginner to advanced topics. Practice with the terminal simulator, test yourself with quizzes, bookmark your favorite commands, and export notes.</p>
+    <p style="font-size:14px;line-height:1.7;color:var(--text2)">LinuxMaster is an interactive Linux learning app covering beginner to advanced topics. Practice with the terminal simulator, test your knowledge with quizzes, explore commands, and learn from common mistakes.</p>
     <br>
     <p style="font-size:13px;color:var(--text2)">Version 2.0 &nbsp;·&nbsp; Pure HTML/CSS/JS &nbsp;·&nbsp; No dependencies</p>
   </div>
@@ -449,22 +456,22 @@ const QUIZ_DATA = [
 ];
 
 const TASKS = [
-  {level:'beginner',title:'File System Exploration',steps:['Open terminal','Type pwd to see where you are','Type ls to see files','Create a folder: mkdir myproject','Enter it: cd myproject','Create a file: touch index.txt','Go back: cd ..','Delete the folder: rm -rf myproject']},
-  {level:'beginner',title:'Text File Practice',steps:['Create a file: touch notes.txt','Write to it: echo "Hello Linux" > notes.txt','View it: cat notes.txt','Add more: echo "Learning is fun" >> notes.txt','View again: cat notes.txt']},
-  {level:'intermediate',title:'Permissions Workshop',steps:['Create script: touch myscript.sh','Check perms: ls -la myscript.sh','Make executable: chmod +x myscript.sh','Check again: ls -la myscript.sh','View numeric perms: stat myscript.sh']},
+  {level:'beginner',title:'File System Exploration',steps:['Open terminal','Type pwd to see where you are','Type ls to see files','Create a folder: mkdir myproject','Enter it: cd myproject','Create a test file inside']},
+  {level:'beginner',title:'Text File Practice',steps:['Create a file: touch notes.txt','Write to it: echo "Hello Linux" > notes.txt','View it: cat notes.txt','Add more: echo "Learning is fun" >> notes.txt','View again to see changes']},
+  {level:'intermediate',title:'Permissions Workshop',steps:['Create script: touch myscript.sh','Check perms: ls -la myscript.sh','Make executable: chmod +x myscript.sh','Check again: ls -la myscript.sh','Notice the x permission changed']},
   {level:'intermediate',title:'Process Management',steps:['Start background process: sleep 60 &','Note the PID shown','List processes: ps aux | grep sleep','Kill it: kill <PID>','Verify it is gone: ps aux | grep sleep']},
-  {level:'advanced',title:'Log Analysis',steps:['Check system logs: cat /var/log/syslog | tail -20','Search for errors: grep -i error /var/log/syslog','Count errors: grep -c error /var/log/syslog','Save results: grep error /var/log/syslog > errors.txt','View saved: wc -l errors.txt']},
-  {level:'advanced',title:'Archive & Compress',steps:['Create test files: mkdir testdir && touch testdir/a.txt testdir/b.txt','Create tar: tar -czvf backup.tar.gz testdir/','List contents: tar -tzvf backup.tar.gz','Extract somewhere: mkdir restored && tar -xzvf backup.tar.gz -C restored/','Verify: ls restored/testdir/']},
+  {level:'advanced',title:'Log Analysis',steps:['Check system logs: cat /var/log/syslog | tail -20','Search for errors: grep -i error /var/log/syslog','Count errors: grep -c error /var/log/syslog','Pipe with grep and sort: grep error /var/log/syslog | sort']},
+  {level:'advanced',title:'Archive & Compress',steps:['Create test files: mkdir testdir && touch testdir/a.txt testdir/b.txt','Create tar: tar -czvf backup.tar.gz testdir/','List contents: tar -tzf backup.tar.gz','Extract to new location: tar -xzvf backup.tar.gz -C /tmp','Verify extraction']}
 ];
 
 const MISTAKES = [
-  {title:'Using rm -rf carelessly',warn:true,desc:'rm -rf / or rm -rf /* deletes everything! Always double-check your path before using rm -rf.',fix:'Use trash-cli or always run ls on the path first.'},
-  {title:'Forgetting sudo when needed',warn:false,desc:'Many system commands need root privileges. If you get "Permission denied", you probably need sudo.',fix:'Prefix the command with sudo. Example: sudo apt update'},
-  {title:'Confusing > and >>',warn:false,desc:'> OVERWRITES the file completely. >> APPENDS to the file. Using > when you meant >> can destroy your data.',fix:'Always double-check: use >> when you want to add, not replace.'},
+  {title:'Using rm -rf carelessly',warn:true,desc:'rm -rf / or rm -rf /* deletes everything! Always double-check your path before using rm -rf.',fix:'Use trash-cli or always run ls on the path first. Never use rm -rf on system directories.'},
+  {title:'Forgetting sudo when needed',warn:false,desc:'Many system commands need root privileges. If you get "Permission denied", you probably need sudo.',fix:'Prefix the command with sudo. Example: sudo apt update instead of apt update'},
+  {title:'Confusing > and >>',warn:false,desc:'> OVERWRITES the file completely. >> APPENDS to the file. Using > when you meant >> can destroy your data.',fix:'Always double-check: use >> when you want to keep existing content. Use > only when you want to replace.'},
   {title:'Not quoting spaces in filenames',warn:false,desc:'rm my file.txt is treated as rm my and rm file.txt — two separate commands!',fix:'Quote filenames: rm "my file.txt" or use backslash: rm my\\ file.txt'},
-  {title:'Running commands as root all the time',warn:true,desc:'Operating as root is dangerous. One typo can break your entire system.',fix:'Use regular user account. Only use sudo when truly necessary.'},
-  {title:'Ignoring file permissions before chmod 777',warn:true,desc:'chmod 777 gives everyone full access. It is a security risk on shared systems.',fix:'Use minimal permissions. 755 for executables, 644 for files is usually enough.'},
-  {title:'Piping without checking intermediate output',warn:false,desc:'cmd1 | cmd2 | cmd3 can be hard to debug if something goes wrong in the middle.',fix:'Test each command independently first, then combine with pipes.'},
+  {title:'Running commands as root all the time',warn:true,desc:'Operating as root is dangerous. One typo can break your entire system.',fix:'Use regular user account. Only use sudo when truly needed for specific commands.'},
+  {title:'Ignoring file permissions before chmod 777',warn:true,desc:'chmod 777 gives everyone full access. It is a security risk on shared systems.',fix:'Use minimal permissions. 755 for executables, 644 for files. Never use 777 unless absolutely necessary.'},
+  {title:'Piping without checking intermediate output',warn:false,desc:'cmd1 | cmd2 | cmd3 can be hard to debug if something goes wrong in the middle.',fix:'Test each command independently first. Build pipes step by step, checking output at each stage.'}
 ];
 
 let lang = 'en';
@@ -551,7 +558,7 @@ function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
-  const titles = {commands:'Commands Reference',terminal:'Terminal Simulator',quiz:'Interactive Quiz',tasks:'Practice Exercises',favorites:'Bookmarked Commands',notes:'Notes Generator',mistakes:'Common Mistakes',about:'About'};
+  const titles = {commands:'Commands Reference',terminal:'Terminal Simulator',quiz:'Interactive Quiz',tasks:'Practice Exercises',favorites:'Bookmarked Commands',notes:'Notes Generator',mistakes:'Common Beginner Mistakes',about:'About LinuxMaster'};
   document.getElementById('page-title').textContent = titles[id]||id;
   document.querySelectorAll('.nav-item').forEach(n=>{if(n.textContent.toLowerCase().includes(id.toLowerCase().replace('_',' ')))n.classList.add('active')});
   if(id==='favorites')renderFavs();
@@ -610,7 +617,7 @@ const TERM_SIM = {
     return `rm: ${f}: No such file or directory`;
   },
   cd:(args)=>{termCwd=args||'~';document.getElementById('term-prompt').textContent=`user@linux:${termCwd}$`;return '';},
-  ping:(args)=>`PING ${args||'localhost'} 56 bytes of data.\n64 bytes from ${args||'127.0.0.1'}: icmp_seq=1 ttl=64 time=0.3ms\n64 bytes from ${args||'127.0.0.1'}: icmp_seq=2 ttl=64 time=0.2ms\n--- ${args||'localhost'} ping statistics ---\n2 packets transmitted, 2 received, 0% packet loss`,
+  ping:(args)=>`PING ${args||'localhost'} 56 bytes of data.\n64 bytes from ${args||'127.0.0.1'}: icmp_seq=1 ttl=64 time=0.3ms\n64 bytes from ${args||'127.0.0.1'}: icmp_seq=2 ttl=64 time=0.2ms\n64 bytes from ${args||'127.0.0.1'}: icmp_seq=3 ttl=64 time=0.25ms\n--- ${args||'localhost'} statistics ---\n3 packets transmitted, 3 received, 0% packet loss`
 };
 
 function buildCal(){
@@ -776,3 +783,5 @@ if(localStorage.getItem('lm_mode')==='light')document.body.classList.add('light'
 renderCmds();
 renderQuiz();
 </script>
+</body>
+</html>
