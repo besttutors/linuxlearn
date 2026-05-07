@@ -246,7 +246,7 @@ Type 'help' to see available commands.
 <div class="page" id="page-about">
   <div class="section-hdr"><h2><span>ℹ️</span> About LinuxMaster</h2></div>
   <div class="cmd-card" style="max-width:500px">
-    <p style="font-size:14px;line-height:1.7;color:var(--text2)">LinuxMaster is an interactive Linux learning app covering beginner to advanced topics. Practice with the terminal simulator, test your knowledge with quizzes, explore commands, and learn from common mistakes.</p>
+    <p style="font-size:14px;line-height:1.7;color:var(--text2)">LinuxMaster is an interactive Linux learning app covering beginner to advanced topics. Practice with the terminal simulator, test your knowledge with quizzes, explore commands with descriptions, learn from common mistakes, and track your progress with our XP system. Perfect for beginners starting their Linux journey!</p>
     <br>
     <p style="font-size:13px;color:var(--text2)">Version 2.0 &nbsp;·&nbsp; Pure HTML/CSS/JS &nbsp;·&nbsp; No dependencies</p>
   </div>
@@ -456,22 +456,22 @@ const QUIZ_DATA = [
 ];
 
 const TASKS = [
-  {level:'beginner',title:'File System Exploration',steps:['Open terminal','Type pwd to see where you are','Type ls to see files','Create a folder: mkdir myproject','Enter it: cd myproject','Create a test file inside']},
-  {level:'beginner',title:'Text File Practice',steps:['Create a file: touch notes.txt','Write to it: echo "Hello Linux" > notes.txt','View it: cat notes.txt','Add more: echo "Learning is fun" >> notes.txt','View again to see changes']},
-  {level:'intermediate',title:'Permissions Workshop',steps:['Create script: touch myscript.sh','Check perms: ls -la myscript.sh','Make executable: chmod +x myscript.sh','Check again: ls -la myscript.sh','Notice the x permission changed']},
-  {level:'intermediate',title:'Process Management',steps:['Start background process: sleep 60 &','Note the PID shown','List processes: ps aux | grep sleep','Kill it: kill <PID>','Verify it is gone: ps aux | grep sleep']},
-  {level:'advanced',title:'Log Analysis',steps:['Check system logs: cat /var/log/syslog | tail -20','Search for errors: grep -i error /var/log/syslog','Count errors: grep -c error /var/log/syslog','Pipe with grep and sort: grep error /var/log/syslog | sort']},
-  {level:'advanced',title:'Archive & Compress',steps:['Create test files: mkdir testdir && touch testdir/a.txt testdir/b.txt','Create tar: tar -czvf backup.tar.gz testdir/','List contents: tar -tzf backup.tar.gz','Extract to new location: tar -xzvf backup.tar.gz -C /tmp','Verify extraction']}
+  {level:'beginner',title:'File System Exploration',steps:['Open terminal','Type pwd to see where you are','Type ls to see files','Create a folder: mkdir myproject','Enter it: cd myproject','Create a test file inside with touch test.txt','List files again to see what you created','This builds your file system awareness']},
+  {level:'beginner',title:'Text File Practice',steps:['Create a file: touch notes.txt','Write to it: echo "Hello Linux" > notes.txt','View it: cat notes.txt','Add more: echo "Learning is fun" >> notes.txt','View again to see changes','Now try: echo "More content" >> notes.txt','Verify final content with cat notes.txt']},
+  {level:'intermediate',title:'Permissions Workshop',steps:['Create script: touch myscript.sh','Check perms: ls -la myscript.sh','Make executable: chmod +x myscript.sh','Check again: ls -la myscript.sh','Notice the x permission for owner/group/others','Remove execute: chmod -x myscript.sh','Verify permission changed back']},
+  {level:'intermediate',title:'Process Management',steps:['Start background process: sleep 60 &','Note the PID shown','List processes: ps aux | grep sleep','Kill it: kill <PID>','Verify it is gone: ps aux | grep sleep','Try: jobs (shows background jobs)','Experiment with killing different processes safely']},
+  {level:'advanced',title:'Log Analysis',steps:['Check system logs: cat /var/log/syslog | tail -20','Search for errors: grep -i error /var/log/syslog','Count errors: grep -c error /var/log/syslog','Find unique errors: grep error /var/log/syslog | sort | uniq','Pipe with wc: grep error /var/log/syslog | wc -l','Use head to see first 5 errors: grep error /var/log/syslog | head -5']},
+  {level:'advanced',title:'Archive & Compress',steps:['Create test files: mkdir testdir && touch testdir/a.txt testdir/b.txt','Create tar: tar -czvf backup.tar.gz testdir/','List contents: tar -tzf backup.tar.gz','Extract to new: tar -xzvf backup.tar.gz -C /tmp','Verify extraction: ls -la /tmp/testdir','Test: Create zip file - zip -r backup.zip testdir/','Compare sizes: du -sh backup.tar.gz backup.zip']}
 ];
 
 const MISTAKES = [
-  {title:'Using rm -rf carelessly',warn:true,desc:'rm -rf / or rm -rf /* deletes everything! Always double-check your path before using rm -rf.',fix:'Use trash-cli or always run ls on the path first. Never use rm -rf on system directories.'},
-  {title:'Forgetting sudo when needed',warn:false,desc:'Many system commands need root privileges. If you get "Permission denied", you probably need sudo.',fix:'Prefix the command with sudo. Example: sudo apt update instead of apt update'},
-  {title:'Confusing > and >>',warn:false,desc:'> OVERWRITES the file completely. >> APPENDS to the file. Using > when you meant >> can destroy your data.',fix:'Always double-check: use >> when you want to keep existing content. Use > only when you want to replace.'},
-  {title:'Not quoting spaces in filenames',warn:false,desc:'rm my file.txt is treated as rm my and rm file.txt — two separate commands!',fix:'Quote filenames: rm "my file.txt" or use backslash: rm my\\ file.txt'},
-  {title:'Running commands as root all the time',warn:true,desc:'Operating as root is dangerous. One typo can break your entire system.',fix:'Use regular user account. Only use sudo when truly needed for specific commands.'},
-  {title:'Ignoring file permissions before chmod 777',warn:true,desc:'chmod 777 gives everyone full access. It is a security risk on shared systems.',fix:'Use minimal permissions. 755 for executables, 644 for files. Never use 777 unless absolutely necessary.'},
-  {title:'Piping without checking intermediate output',warn:false,desc:'cmd1 | cmd2 | cmd3 can be hard to debug if something goes wrong in the middle.',fix:'Test each command independently first. Build pipes step by step, checking output at each stage.'}
+  {title:'Using rm -rf carelessly',warn:true,desc:'rm -rf / or rm -rf /* deletes everything! Always double-check your path before using rm -rf.',fix:'Use trash-cli or always run ls on the path first. Never use rm -rf on system directories. Consider aliases that add -i flag.'},
+  {title:'Forgetting sudo when needed',warn:false,desc:'Many system commands need root privileges. If you get "Permission denied", you probably need sudo.',fix:'Prefix the command with sudo. Example: sudo apt update instead of apt update. Use visudo to configure sudoers safely.'},
+  {title:'Confusing > and >>',warn:false,desc:'> OVERWRITES the file completely. >> APPENDS to the file. Using > when you meant >> can destroy your data.',fix:'Always double-check: use >> when you want to keep existing content. Use > only when you want to replace. Test with cat first.'},
+  {title:'Not quoting spaces in filenames',warn:false,desc:'rm my file.txt is treated as rm my and rm file.txt — two separate commands!',fix:'Quote filenames: rm "my file.txt" or use backslash: rm my\\ file.txt. Better: avoid spaces in filenames altogether.'},
+  {title:'Running commands as root all the time',warn:true,desc:'Operating as root is dangerous. One typo can break your entire system.',fix:'Use regular user account. Only use sudo when truly needed for specific commands. Create separate admin accounts for system tasks.'},
+  {title:'Ignoring file permissions before chmod 777',warn:true,desc:'chmod 777 gives everyone full access. It is a security risk on shared systems.',fix:'Use minimal permissions. 755 for executables, 644 for files. Never use 777 unless absolutely necessary. Use umask to set defaults.'},
+  {title:'Piping without checking intermediate output',warn:false,desc:'cmd1 | cmd2 | cmd3 can be hard to debug if something goes wrong in the middle.',fix:'Test each command independently first. Build pipes step by step, checking output at each stage. Use tee to save intermediate results.'}
 ];
 
 let lang = 'en';
@@ -778,7 +778,6 @@ function awardXP(n){
   document.getElementById('prog-xp').textContent=progress.xp+' XP';
 }
 
-// Init
 if(localStorage.getItem('lm_mode')==='light')document.body.classList.add('light');
 renderCmds();
 renderQuiz();
